@@ -2,6 +2,7 @@ import pandas as pd
 import folium
 import streamlit as st
 from streamlit_folium import folium_static
+import re
 
 # configurando o app
 st.set_page_config(layout='wide')
@@ -109,9 +110,28 @@ if senha == 'maparollout':
                     dados['SITE'][i] = sites_certos.loc[site, 'site_certo']
                 else:
                     pass
-             # combinando os dados
+            # combinando os dados
             dados = dados.merge(clean, how='left', on='SITE')
-            # tratando as strings
+            # adicionando as fórmulas para extrair os sites certos
+            pattern = [r"\w*([A-Z]{6}[0-9]{2})\w*",
+                       r"\w*([A-Z]{5}[0-9]{2})\w*",
+                       r"\w*([A-Z]{4}[0-9]{2})\w*",
+                       r"([A-Z]{3}.[A-Z]{3}[0-9]{2}.[A-Z]{3}[0-9]{2})[A-Z]{2}"
+                       ]
+            for d, i in zip(dados.loc[dados['LATITUDE'].isna(), 'SITE'],  dados[dados['LATITUDE'].isna()].index):
+                if d == 'CENTRALIZADO_TX':
+                    pass
+                else:
+                    for p in pattern:
+                        sitenovo = re.search(p, d)
+                        if sitenovo != None:
+                            sitenovo = sitenovo.group(1)
+                            if sitenovo in spazio.index:
+                                dados.loc[i, 'SITE'] = sitenovo
+                                dados.loc[i, 'LATITUDE'] = spazio.loc[sitenovo, 'Latitude']
+                                dados.loc[i, 'LONGITUDE'] = spazio.loc[sitenovo, 'Longitude']
+                                dados.loc[i, 'CIDADE'] = spazio.loc[sitenovo, 'Município']
+           # tratando as strings
             dados['LATITUDE'] = dados['LATITUDE'].str.strip()
             dados['LONGITUDE'] = dados['LONGITUDE'].str.strip()
             dados['LATITUDE'] = dados['LATITUDE'].str.replace(',', '.').astype(float)
@@ -120,7 +140,7 @@ if senha == 'maparollout':
             dados['LONGITUDE'] = dados['LONGITUDE'].round(2)
             # mostrando os não encontrados
             n_encontrados = dados[dados['LATITUDE'].isnull()]
-            with col3:
+            with col1:
                 with st.beta_expander('WOs em sites não localizados'):
                     st.text(n_encontrados['WO'].unique())
                 with st.beta_expander('Sites não localizados'):
@@ -133,8 +153,12 @@ if senha == 'maparollout':
                                 location=[-16.1237611, -59.9219642],
                                 zoom_start=4
                                 )
-             # adicionando marcadores
+            # adicionando marcadores
             for i in range(0,len(dados)):
+                folium.Marker(
+                              location=[dados.iloc[i]['LATITUDE'], dados.iloc[i]['LONGITUDE']],
+                              popup=dados.iloc[i]['WO'],
+                              ).add_to(brasil)
                 folium.Marker(
                               location=[dados.iloc[i]['LATITUDE'], dados.iloc[i]['LONGITUDE']],
                               popup=dados.iloc[i]['SITE'],
