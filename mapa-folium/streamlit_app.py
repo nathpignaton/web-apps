@@ -14,8 +14,7 @@ with col1:
     senha = st.text_input('Insira a palavra passe abaixo:')
 if senha == 'maparollout':
     # criando df para novos sites
-    old_site = ['NLTAGA47 (4G-TAGA47)',
-                'RCE-IBA01-NKI01CO',
+    old_site = ['RCE-IBA01-NKI01CO',
                 'FLA-CEN01-NKI01CO',
                 'MWE-RJ-RJCG11-T1-HW x RJO-RJCG11-THWP01',
                 'AIR-ETC01-NKI01CO',
@@ -45,8 +44,7 @@ if senha == 'maparollout':
                 'MWE-RJ-ARMA03-N1-HW'
                 ]
 
-    new_site = ['NLTAGA47',
-                'RCE-IBA01-NKI01',
+    new_site = ['RCE-IBA01-NKI01',
                 'FLA-CEN01-NKI01',
                 'MWE-RJ-RJCG11-T1-HW x RJO-RJCG11-THWP01',
                 'AIR-ETC01-NKI01',
@@ -156,20 +154,19 @@ if senha == 'maparollout':
                                 )
             # adicionando marcadores
             for i in range(0,len(dados)):
+                html=f"""
+                <p>WO: {dados.iloc[i]['WO']}
+                <br>Cidade: {dados.iloc[i]['CIDADE']}
+                <br>Site: {dados.iloc[i]['SITE']}</p>
+                """
+                iframe = folium.IFrame(html=html, width=170, height=80)
+                popup = folium.Popup(iframe, max_width=2650)
                 folium.Marker(
                               location=[dados.iloc[i]['LATITUDE'], dados.iloc[i]['LONGITUDE']],
-                              popup=dados.iloc[i]['WO'],
-                              ).add_to(brasil)
-                folium.Marker(
-                              location=[dados.iloc[i]['LATITUDE'], dados.iloc[i]['LONGITUDE']],
-                              popup=dados.iloc[i]['SITE'],
-                              ).add_to(brasil)
-                folium.Marker(
-                              location=[dados.iloc[i]['LATITUDE'], dados.iloc[i]['LONGITUDE']],
-                              popup=dados.iloc[i]['CIDADE'],
+                              popup=popup,
                               ).add_to(brasil)
             with col2:
-                folium_static(brasil, width=700, height=650)
+                folium_static(brasil, width=800, height=650)
         else:
             print("O arquivo contendo xtts não foi inserido")
     else:
