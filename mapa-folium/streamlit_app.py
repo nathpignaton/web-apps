@@ -118,6 +118,7 @@ if senha == 'maparollout':
                        r"\w*([A-Z]{4}[0-9]{2})\w*",
                        r"([A-Z]{3}.[A-Z]{3}[0-9]{2}.[A-Z]{3}[0-9]{2})[A-Z]{2}"
                        ]
+            spazio.set_index('Site ID', drop=True, inplace=True)
             for d, i in zip(dados.loc[dados['LATITUDE'].isna(), 'SITE'],  dados[dados['LATITUDE'].isna()].index):
                 if d == 'CENTRALIZADO_TX':
                     pass
